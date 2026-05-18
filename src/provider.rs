@@ -105,7 +105,7 @@ fn resolve_api_key(
         return Ok(String::new());
     }
 
-    if kind == ProviderKind::Custom {
+    if kind == ProviderKind::Custom || api_key_env_override.is_some() {
         return Ok(String::new());
     }
 
