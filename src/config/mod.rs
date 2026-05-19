@@ -42,6 +42,7 @@ pub struct Config {
     pub show_tool_details: Option<bool>,
     pub default_prompt: Option<String>,
     pub shell: Option<String>,
+    pub editor: Option<String>,
     #[cfg(feature = "mcp")]
     pub mcp_servers: Option<HashMap<String, McpServerConfig>>,
 

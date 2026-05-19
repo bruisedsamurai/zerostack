@@ -78,6 +78,7 @@ pub struct InputEditor {
     pub picker: Option<Picker>,
     monochrome: bool,
     prompt_names: Vec<String>,
+    editor: Option<String>,
 }
 
 impl InputEditor {
@@ -90,7 +91,12 @@ impl InputEditor {
             picker: None,
             monochrome: false,
             prompt_names: Vec::new(),
+            editor: None,
         }
+    }
+
+    pub fn set_editor(&mut self, editor: String) {
+        self.editor = Some(editor);
     }
 
     pub fn set_monochrome(&mut self, monochrome: bool) {
@@ -164,9 +170,11 @@ impl InputEditor {
     }
 
     fn open_in_editor(&mut self) {
-        let editor = std::env::var("VISUAL")
-            .or_else(|_| std::env::var("EDITOR"))
-            .unwrap_or_else(|_| "nano".to_string());
+        let editor = self
+            .editor
+            .clone()
+            .or_else(|| std::env::var("EDITOR").ok())
+            .unwrap_or_else(|| "editor".to_string());
 
         let tmp = std::env::temp_dir().join(format!("zerostack-{}.md", std::process::id()));
 
