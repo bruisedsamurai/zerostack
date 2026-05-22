@@ -82,6 +82,8 @@ pub struct Config {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sandbox: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_all_mcp_calls: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub default_permission_mode: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub show_tool_details: Option<bool>,
