@@ -26,6 +26,7 @@ pub struct PermissionChecker {
     recent_calls: VecDeque<(String, String)>,
     mode: SecurityMode,
     permission_modes: Vec<SecurityMode>,
+    allow_all_mcp_calls: bool,
 }
 
 impl PermissionChecker {
@@ -169,6 +170,7 @@ impl PermissionChecker {
             recent_calls: VecDeque::with_capacity(16),
             mode,
             permission_modes: resolved_modes,
+            allow_all_mcp_calls: false,
         }
     }
 
@@ -181,6 +183,9 @@ impl PermissionChecker {
     }
 
     pub fn check(&mut self, tool: &str, input: &str) -> CheckResult {
+        if self.allow_all_mcp_calls && tool == "mcp_tool" {
+            return CheckResult::Allowed;
+        }
         if self.is_session_allowed(tool, input) {
             return CheckResult::Allowed;
         }
@@ -255,6 +260,9 @@ impl PermissionChecker {
     }
 
     pub fn check_path(&mut self, tool: &str, path: &str) -> CheckResult {
+        if self.allow_all_mcp_calls && tool == "mcp_tool" {
+            return CheckResult::Allowed;
+        }
         let expanded = crate::fs::expand_tilde(path);
         let abs_path = resolve_absolute(&expanded, &self.working_dir);
 
@@ -400,17 +408,23 @@ impl PermissionChecker {
         self.mode
     }
 
+    pub fn set_allow_all_mcp_calls(&mut self, allow: bool) {
+        self.allow_all_mcp_calls = allow;
+    }
+
     fn is_path_tool(&self, tool: &str) -> bool {
         matches!(tool, "read" | "write" | "edit" | "list_dir")
     }
 
     fn is_external_path(&self, path_str: &str) -> bool {
         let p = Path::new(path_str);
-        if !p.is_absolute() {
-            return false;
-        }
+        let p = if p.is_absolute() {
+            p.to_path_buf()
+        } else {
+            Path::new(&self.working_dir).join(p)
+        };
         let cwd = Path::new(&self.working_dir);
-        let normalized = normalize_path(p);
+        let normalized = normalize_path(&p);
         let normalized_cwd = normalize_path(cwd);
         !normalized.starts_with(&normalized_cwd)
     }

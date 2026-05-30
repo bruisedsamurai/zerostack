@@ -858,3 +858,47 @@ fn yolo_allows_write_todo_list() {
         CheckResult::Allowed
     ));
 }
+
+// --- MCP allow-all via checker ---
+
+#[test]
+fn allow_all_mcp_overrides_deny_rules() {
+    let config = PermissionConfig {
+        mcp_tool: Some(ToolPerm::Simple(Action::Deny)),
+        ..PermissionConfig::default()
+    };
+    let mut checker = PermissionChecker::new(
+        &configs_from(config),
+        SecurityMode::Standard,
+        None,
+        default_modes(),
+    );
+    checker.set_allow_all_mcp_calls(true);
+    let result = checker.check("mcp_tool", "mcp_tool:filesystem:read_file");
+    assert!(
+        matches!(result, CheckResult::Allowed),
+        "expected Allowed for MCP tool when allow_all_mcp_calls is set, got {:?}",
+        result,
+    );
+}
+
+#[test]
+fn allow_all_mcp_does_not_affect_non_mcp_tools() {
+    let config = PermissionConfig {
+        bash: Some(ToolPerm::Simple(Action::Deny)),
+        ..PermissionConfig::default()
+    };
+    let mut checker = PermissionChecker::new(
+        &configs_from(config),
+        SecurityMode::Standard,
+        None,
+        default_modes(),
+    );
+    checker.set_allow_all_mcp_calls(true);
+    let result = checker.check("bash", "ls");
+    assert!(
+        matches!(result, CheckResult::Denied(_)),
+        "expected Denied for bash even with allow_all_mcp_calls, got {:?}",
+        result,
+    );
+}
