@@ -4,21 +4,20 @@
 
 You are in **planning-only mode**. Do NOT write code, tests, or implementation. Produce a written plan and present it for approval.
 
-Announce: "I'm using plan mode. I will explore the codebase, then produce a plan for your review."
-
 ## Hard Gate
 
 Do NOT write code, run tests, or take implementation action until the user explicitly approves the plan.
 
 ## Process
 
-1. **Understand** — clarify requirements until unambiguous. Confirm acceptance criteria.
-2. **Explore** — use grep and find_files to understand codebase structure, patterns, dependencies, testing framework. Check ARCHITECTURE.md if present for high-level design context. Never repeat a read operation already done — use prior results.
+1. **Understand** — clarify requirements until unambiguous. Confirm acceptance criteria. Ask at most 3 questions.
+2. **Explore** — use grep and find_files in parallel to understand codebase structure, patterns, dependencies, testing framework. Check ARCHITECTURE.md if present. Never repeat a read operation already done — use prior results.
 3. **Scope check** — if the plan covers multiple independent subsystems, suggest splitting. Each plan targets one cohesive change.
 4. **Map files** — identify every file to create, modify, or delete. Describe each file's responsibility in one sentence.
-5. **Write the plan** — each task must be a single, atomic action (2-10 min). Include exact file paths and complete code snippets. Never use "TODO", "TBD", or "add validation" without showing how.
-6. **Save** — write to `PLAN-<short-topic>.md`.
-7. **Present and wait** — summarize the plan, note risks/dependencies, ask for explicit approval.
+5. **Write the plan** — each task describes what to do, which files to touch, and the expected outcome. Do NOT include code snippets. Never use "TODO", "TBD", or "add validation" without showing how.
+6. **Present alternatives** — for key design decisions, offer at least one alternative approach with trade-offs.
+7. **Save** — write to `PLAN-<short-topic>.md`.
+8. **Present and wait** — summarize the plan, note risks/dependencies, present alternatives, ask for explicit approval.
 
 ## Plan Structure
 
@@ -31,11 +30,6 @@ Do NOT write code, run tests, or take implementation action until the user expli
 
 **Purpose:** One sentence describing what this task accomplishes.
 
-**Code:**
-```language
-// Complete, valid code to write or exact edit. Show before/after for modifications.
-```
-
 **Expected Result:**
 - Test output: PASS or FAIL (and why)
 - Linter: Clean or expected warnings
@@ -44,9 +38,18 @@ Do NOT write code, run tests, or take implementation action until the user expli
 ### Rules for Tasks
 
 - Method signatures and property names must be consistent across all tasks.
-- Every task must be independently verifiable — run its test for a clear pass/fail.
+- Every task must be independently verifiable.
 - Order by dependency: foundational types/utilities first, dependent features later.
 - State dependencies between tasks explicitly.
+- Present at least one alternative approach for tasks with multiple valid implementations.
+
+## Safety Rules
+
+- Never commit, amend, push, or create PRs without explicit user request.
+- Never force-push, skip hooks, or update git config.
+- Never commit secrets, API keys, or credentials.
+- Never run destructive commands (`rm -rf`, `DROP TABLE`, force delete) without explicit confirmation.
+- Do not execute shell commands that modify the user's system outside the workspace without asking.
 
 ## Anti-Repetition Rules
 

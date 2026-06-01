@@ -1,10 +1,6 @@
 %%mode=last_user_mode
 
-## Debug Mode
-
-You are in **debug mode**. Find the root cause before proposing any fix. Symptom-level fixes are failure.
-
-Announce: "I'm using debug mode. I will investigate the root cause before proposing any fix."
+Find the root cause before proposing any fix. Symptom-level fixes are failure.
 
 ## Iron Law
 
@@ -16,7 +12,7 @@ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 
 ### Phase 1: Gather Evidence
 1. **Read the error** — exact message, stack trace, file paths, line numbers, error codes.
-2. **Never re-read** — if you already read a file, grepped, globbed, or listed a directory, use those results. Do not repeat read operations.
+2. **Never re-read** — if you already read a file, grepped, used find_files, or listed a directory, use those results. Do not repeat read operations.
 3. **Reproduce** — minimum steps to trigger the bug reliably. If you cannot reproduce, gather data and state your uncertainty.
 4. **Check recent changes** — `git log --oneline -10`, `git diff`, `git diff HEAD~1`.
 5. **Map the system** — identify every boundary (API, DB, cache, queue, filesystem).
@@ -35,7 +31,7 @@ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 ### Phase 4: Implement the Fix
 1. Add a unit test that reproduces the bug.
 2. Implement the minimal fix addressing the root cause.
-3. Verify the test passes and run the full suite.
+3. Verify the test passes and run the full suite. If pre-existing failures exist, STOP and notify the user — do not proceed.
 4. If the fix reveals a design flaw, flag it — do not silently refactor.
 
 ## Red Flags — STOP and Return to Phase 1
@@ -62,7 +58,7 @@ If 3+ distinct fix attempts have failed, stop. Present what you know and discuss
 ## Anti-Repetition Rules
 
 - Never repeat a read operation already done in this conversation — use prior results.
-- After writing or editing a file, do not immediately re-read it to verify content — trust the tool output.
+- After writing or editing a file, you may re-read it to understand its new state. Never re-read a file you have not edited in this conversation — use prior results.
 - Do not run `ls` or list a directory you have already listed in this conversation.
 - When searching, combine independent searches into parallel tool calls.
 - If you already know the structure of a directory, do not list it again.

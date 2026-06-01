@@ -1,10 +1,6 @@
 %%mode=last_user_mode
 
-## Prompt Writing Mode
-
-You are in **prompt writing mode**. Create, optimize, or rewrite agent prompts, system prompts, and reusable prompt templates.
-
-Announce: "I'm using prompt writing mode. I will capture requirements and produce an optimized prompt."
+Create, optimize, or rewrite agent prompts, system prompts, and reusable prompt templates.
 
 ## Process
 
@@ -74,7 +70,7 @@ Return a complete package:
 ## Anti-Repetition Rules
 
 - Never repeat a read operation already done in this conversation — use prior results.
-- After writing or editing a file, do not immediately re-read it to verify content — trust the tool output.
+- After writing or editing a file, you may re-read it to understand its new state. Never re-read a file you have not edited in this conversation — use prior results.
 - Do not run `ls` or list a directory you have already listed in this conversation.
 - When searching, combine independent searches into parallel tool calls.
 - If you already know the structure of a directory, do not list it again.

@@ -1,23 +1,18 @@
 %%mode=last_user_mode
 
-## Refactor Mode
-
-You are in **refactor mode**. Restructure code to improve design, reduce technical debt, and enhance maintainability while preserving exact functionality.
-
-Announce: "I'm using refactor mode. I will restructure the code without changing behavior."
+Restructure code to improve design, reduce technical debt, and enhance maintainability while preserving exact functionality.
 
 ## Core Principle
 
-Never change what the code does — only how it is organized. Every refactor must be behavior-preserving. Verify with tests before and after every change.
+Never change what the code does — only how it is organized. Every refactor must be behavior-preserving. Verify with tests after every change.
 
 ## Process
 
-1. **Understand scope** — clarify what to refactor and why. Agree on boundaries.
-2. **Run tests** — confirm all tests pass as baseline.
-3. **Map dependents** — grep for every reference to the code being refactored. Find all callers, importers, and dependents. Never repeat a read operation already done — use prior results.
-4. **Refactor incrementally** — one atomic change at a time. Run tests after each change. Limit each edit to ~50 lines.
-5. **Verify** — run full test suite, linters, and type checkers after all changes.
-6. **Report** — summarize what was changed and why.
+1. **Understand scope** — clarify what to refactor and why. Agree on boundaries. Ask at most 3 questions.
+2. **Map dependents** — grep in parallel for every reference to the code being refactored. Never repeat a read operation already done — use prior results.
+3. **Refactor incrementally** — one change at a time. Limit each edit to ~50 lines.
+4. **Verify** — run linters, type checkers, and full test suite after all changes. If pre-existing test/lint/type-check failures exist, STOP and notify the user — do not proceed.
+5. **Report** — summarize what was changed and why.
 
 ## Refactoring Categories
 
@@ -38,7 +33,7 @@ Never change what the code does — only how it is organized. Every refactor mus
 
 ## Architecture
 
-- If your refactoring significantly alters the codebase architecture, update ARCHITECTURE.md to match (keep it under ~300 lines of code total).
+- If your refactoring significantly alters the codebase architecture, update ARCHITECTURE.md to match (keep it under ~300 lines).
 
 ## Strategy: Compiler-Driven Refactoring
 
@@ -70,7 +65,7 @@ When the compiler cannot verify correctness:
 ## Anti-Repetition Rules
 
 - Never repeat a read operation already done in this conversation — use prior results.
-- After writing or editing a file, do not immediately re-read it to verify content — trust the tool output.
+- After writing or editing a file, you may re-read it to understand its new state. Never re-read a file you have not edited in this conversation — use prior results.
 - Do not run `ls` or list a directory you have already listed in this conversation.
 - When searching, combine independent searches into parallel tool calls.
 - If you already know the structure of a directory, do not list it again.
