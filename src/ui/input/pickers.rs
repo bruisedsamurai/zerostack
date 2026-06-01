@@ -152,6 +152,7 @@ pub fn handle_command_picker_key(
     theme_names: &[String],
     quick_model_names: &[String],
     live_model_names: &[String],
+    provider_names: &[String],
     picker: &mut CommandPicker,
     key: KeyEvent,
 ) -> (bool, Option<Picker>) {
@@ -282,6 +283,13 @@ pub fn handle_command_picker_key(
                     tp.set_items(theme_names.to_vec());
                     tp.activate();
                     return (true, Some(Picker::Theme(tp)));
+                }
+                if selected == "/provider" && !provider_names.is_empty() {
+                    picker.deactivate();
+                    let mut pp = PromptPicker::with_prefix("/provider ");
+                    pp.set_items(provider_names.to_vec());
+                    pp.activate();
+                    return (true, Some(Picker::Prompt(pp)));
                 }
                 if selected == "/queue" {
                     // Open a second-level picker for the queue subcommands so

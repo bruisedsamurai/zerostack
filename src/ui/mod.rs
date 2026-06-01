@@ -303,6 +303,15 @@ pub async fn run_interactive(
         input.set_editor(editor.clone());
     }
     input.set_quick_model_names(config::quick_models_map(cfg).into_keys().collect());
+    {
+        // fixed built-in providers plus any custom gateways from config
+        let mut providers: Vec<String> = ["anthropic", "openai", "gemini", "openrouter", "ollama"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+        providers.extend(cfg.custom_providers_map().keys().cloned());
+        input.set_provider_names(providers);
+    }
     input.load_global_history();
     // pre-warm the current provider's live models into the picker (best-effort)
     {

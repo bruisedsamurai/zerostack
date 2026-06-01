@@ -366,7 +366,14 @@ impl PromptPicker {
                 "{}",
                 SetForegroundColor(self.color(Color::DarkGrey))
             )?;
-            write!(stdout, "no matches")?;
+            // The provider list is not exhaustive: built-ins plus configured custom
+            // gateways are shown, but a name typed here is still submitted as-is, so
+            // remind the user they can free-type a registered gateway name.
+            if self.prefix == "/provider " {
+                write!(stdout, "no matches  (type a registered custom gateway name)")?;
+            } else {
+                write!(stdout, "no matches")?;
+            }
             write!(stdout, "{}", ResetColor)?;
             stdout.flush()?;
             return Ok(());

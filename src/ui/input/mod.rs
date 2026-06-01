@@ -31,6 +31,7 @@ pub struct InputEditor {
     theme_names: Vec<String>,
     quick_model_names: Vec<String>,
     live_model_names: Vec<String>,
+    provider_names: Vec<String>,
     editor: Option<String>,
     kill_ring: Vec<CompactString>,
     yank_pos: Option<usize>,
@@ -51,6 +52,7 @@ impl InputEditor {
             theme_names: Vec::new(),
             quick_model_names: Vec::new(),
             live_model_names: Vec::new(),
+            provider_names: Vec::new(),
             editor: None,
             kill_ring: Vec::with_capacity(MAX_KILL_RING),
             yank_pos: None,
@@ -64,6 +66,10 @@ impl InputEditor {
 
     pub fn set_live_model_names(&mut self, names: Vec<String>) {
         self.live_model_names = names;
+    }
+
+    pub fn set_provider_names(&mut self, names: Vec<String>) {
+        self.provider_names = names;
     }
 
     pub fn set_editor(&mut self, editor: String) {
@@ -117,6 +123,16 @@ impl InputEditor {
         self.picker = Some(Picker::Models(picker));
     }
 
+    pub fn start_provider_picker(&mut self) {
+        let mut picker = PromptPicker::with_prefix("/provider ");
+        picker.set_monochrome(self.monochrome);
+        if !self.provider_names.is_empty() {
+            picker.set_items(self.provider_names.clone());
+        }
+        picker.activate();
+        self.picker = Some(Picker::Prompt(picker));
+    }
+
     pub fn start_prompt_picker(&mut self) {
         let mut picker = PromptPicker::new();
         picker.set_monochrome(self.monochrome);
@@ -160,6 +176,7 @@ impl InputEditor {
                     &self.theme_names,
                     &self.quick_model_names,
                     &self.live_model_names,
+                    &self.provider_names,
                     p,
                     key,
                 );
@@ -504,6 +521,21 @@ impl InputEditor {
                             self.start_theme_picker();
                             if let Some(Picker::Theme(ref mut tp)) = self.picker {
                                 tp.char_input(c);
+                            }
+                        }
+                    }
+                }
+                if (self.picker.is_none() || !self.picker.as_ref().is_some_and(|p| p.active()))
+                    && self.buffer.starts_with("/provider ")
+                {
+                    let after_prefix: String =
+                        self.buffer.chars().skip("/provider ".len()).collect();
+                    if !after_prefix.is_empty() && c != ' ' {
+                        let query_len = after_prefix.len();
+                        if query_len == 1 {
+                            self.start_provider_picker();
+                            if let Some(Picker::Prompt(ref mut pp)) = self.picker {
+                                pp.char_input(c);
                             }
                         }
                     }
