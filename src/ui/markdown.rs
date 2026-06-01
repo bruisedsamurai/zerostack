@@ -305,16 +305,20 @@ pub fn markdown_to_styled(text: &str, max_width: usize) -> Vec<LineEntry> {
                     });
                 }
                 TagEnd::Link => {
-                    if !link_url.is_empty() && !acc.is_empty() {
-                        flush_acc(&acc, Color::DarkCyan, max_width, &mut result);
-                        let note = format!("  ↪ {}", link_url);
-                        for chunk in word_wrap(&note, max_width) {
-                            result.push(LineEntry {
-                                text: chunk,
-                                color: Color::DarkGrey,
-                            });
+                    if !link_url.is_empty() {
+                        if in_table_cell {
+                            table_cell.push_str(&format!(" ({})", link_url));
+                        } else if !acc.is_empty() {
+                            flush_acc(&acc, Color::DarkCyan, max_width, &mut result);
+                            let note = format!("  ↪ {}", link_url);
+                            for chunk in word_wrap(&note, max_width) {
+                                result.push(LineEntry {
+                                    text: chunk,
+                                    color: Color::DarkGrey,
+                                });
+                            }
+                            acc.clear();
                         }
-                        acc.clear();
                     }
                     link_url.clear();
                 }
@@ -358,22 +362,30 @@ pub fn markdown_to_styled(text: &str, max_width: usize) -> Vec<LineEntry> {
                 }
             }
             Event::Code(t) => {
-                let color = if in_blockquote {
-                    Color::DarkGrey
+                if in_table_cell {
+                    table_cell.push_str(&format!("`{}`", t));
                 } else {
-                    Color::White
-                };
-                flush_acc(&acc, color, max_width, &mut result);
-                let code_text = format!("`{}`", t);
-                for chunk in word_wrap(&code_text, max_width) {
-                    result.push(LineEntry {
-                        text: chunk,
-                        color: Color::Yellow,
-                    });
+                    let color = if in_blockquote {
+                        Color::DarkGrey
+                    } else {
+                        Color::White
+                    };
+                    flush_acc(&acc, color, max_width, &mut result);
+                    let code_text = format!("`{}`", t);
+                    for chunk in word_wrap(&code_text, max_width) {
+                        result.push(LineEntry {
+                            text: chunk,
+                            color: Color::Yellow,
+                        });
+                    }
                 }
             }
             Event::SoftBreak | Event::HardBreak => {
-                acc.push('\n');
+                if in_table_cell {
+                    table_cell.push('\n');
+                } else {
+                    acc.push('\n');
+                }
             }
             Event::Rule => {
                 flush_acc(&acc, Color::White, max_width, &mut result);
@@ -389,10 +401,18 @@ pub fn markdown_to_styled(text: &str, max_width: usize) -> Vec<LineEntry> {
                 });
             }
             Event::Html(t) => {
-                acc.push_str(&t);
+                if in_table_cell {
+                    table_cell.push_str(&t);
+                } else {
+                    acc.push_str(&t);
+                }
             }
             Event::InlineHtml(t) => {
-                acc.push_str(&t);
+                if in_table_cell {
+                    table_cell.push_str(&t);
+                } else {
+                    acc.push_str(&t);
+                }
             }
             Event::FootnoteReference(t) => {
                 acc.push_str(&t);
@@ -749,6 +769,21 @@ mod tests {
     #[test]
     fn table_blank_skipped() {
         markdown_to_styled("||\n|--|\n||\n", 80);
+    }
+
+    #[test]
+    fn table_with_inline_code() {
+        let input = "| Cmd | Desc |\n|-----|------|\n| `ls` | list |\n";
+        let styled = markdown_to_styled(input, 80);
+        let joined: String = styled
+            .iter()
+            .map(|e| e.text.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(
+            joined.contains("`ls`"),
+            "table should contain inline code `ls`"
+        );
     }
 
     #[test]
