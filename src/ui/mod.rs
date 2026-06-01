@@ -240,49 +240,7 @@ pub async fn run_interactive(
     render_session(&mut renderer, session, cli, cfg, context)?;
     let marker_path = crate::session::storage::data_dir().join("shown_welcome_msg");
     if cfg.resolve_always_show_welcome() || !marker_path.exists() {
-        renderer.write_line("──────────────────────────────────────────", Color::Cyan)?;
-        renderer.write_line("  zerostack Quickstart", Color::Cyan)?;
-        renderer.write_line("──────────────────────────────────────────", Color::Cyan)?;
-        renderer.write_line("", Color::White)?;
-        renderer.write_line("  Pickers:", C_TOOL)?;
-        renderer.write_line(
-            "    @<path>     File picker / auto-complete paths",
-            Color::White,
-        )?;
-        renderer.write_line(
-            "    !<command>  Run a shell command (output stored as assistant)",
-            Color::White,
-        )?;
-        renderer.write_line(
-            "    .<prompt>   Switch prompt or one-shot .<prompt> <message>",
-            Color::White,
-        )?;
-        renderer.write_line("", Color::White)?;
-        renderer.write_line("  Slash Commands:", C_TOOL)?;
-        renderer.write_line("    /model        Switch model", Color::White)?;
-        renderer.write_line("    /prompt       List / activate prompts", Color::White)?;
-        renderer.write_line(
-            "    .autoconfig        Switches to auto-configurator",
-            Color::White,
-        )?;
-        renderer.write_line("    /mode         Change security mode", Color::White)?;
-        renderer.write_line("    /clear        Clear session", Color::White)?;
-        renderer.write_line("    /undo         Undo last exchange", Color::White)?;
-        renderer.write_line("    /compress     Free context window space", Color::White)?;
-        renderer.write_line("    /help         Show all commands", Color::White)?;
-        renderer.write_line("", Color::White)?;
-        renderer.write_line("  Keybindings:", C_TOOL)?;
-        renderer.write_line("    Ctrl+G     Open input in $EDITOR", Color::White)?;
-        renderer.write_line("    Ctrl+H     Launch lazygit", Color::White)?;
-        renderer.write_line("    Ctrl+S     Save session", Color::White)?;
-        renderer.write_line("    Tab        File picker / auto-complete", Color::White)?;
-        renderer.write_line(
-            "  Website: https://gi-dellav.github.io/zerostack/",
-            Color::White,
-        )?;
-        renderer.write_line("", Color::White)?;
-        renderer.write_line("──────────────────────────────────────────", Color::Cyan)?;
-        renderer.write_line("", Color::White)?;
+        crate::ui::events::show_welcome(&mut renderer)?;
         if !cfg.resolve_always_show_welcome() {
             if let Some(dir) = marker_path.parent() {
                 let _ = std::fs::create_dir_all(dir);

@@ -1,5 +1,9 @@
 use crate::ui::slash::{SlashCtx, write_ok, write_result};
 
+pub fn handle_welcome(renderer: &mut crate::ui::renderer::Renderer) {
+    let _ = crate::ui::events::show_welcome(renderer);
+}
+
 pub fn handle(_parts: &[&str], ctx: &mut SlashCtx<'_>) {
     write_ok(ctx.renderer, "commands:");
     write_result(
@@ -139,6 +143,11 @@ pub fn handle(_parts: &[&str], ctx: &mut SlashCtx<'_>) {
         "  /history               show global chat history",
     );
     write_result(ctx.renderer, "  /quit [/exit]          exit zerostack");
+    write_result(
+        ctx.renderer,
+        "  /welcome               show the quickstart guide",
+    );
+    write_result(ctx.renderer, "  /tutorial              alias for /welcome");
     write_result(ctx.renderer, "  /help                  show this message");
     write_result(ctx.renderer, "");
     #[cfg(feature = "subagents")]
