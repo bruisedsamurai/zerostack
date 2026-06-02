@@ -275,24 +275,48 @@ async fn main() -> anyhow::Result<()> {
 
     // Version-change prompts: defer to here so all heavy setup completes first.
     if version_changed && is_interactive {
-        let mut input = String::new();
-        eprint!("Regenerate prompts? [y/N] ");
-        let _ = std::io::Write::flush(&mut std::io::stderr());
-        std::io::stdin().read_line(&mut input)?;
-        if matches!(input.trim().to_lowercase().as_str(), "y" | "yes") {
+        let prompts_dir = context::prompts::global_dir();
+        let themes_dir = context::themes::global_dir();
+        let auto_prompts = !prompts_dir.exists();
+        let auto_themes = !themes_dir.exists();
+        let mut regenerated = false;
+
+        if auto_prompts {
             let _ = context::prompts::regen();
-            eprintln!("Prompts regenerated.");
+            eprintln!("Prompts regenerated (first launch).");
+            regenerated = true;
+        } else {
+            let mut input = String::new();
+            eprint!("Regenerate prompts? [y/N] ");
+            let _ = std::io::Write::flush(&mut std::io::stderr());
+            std::io::stdin().read_line(&mut input)?;
+            if matches!(input.trim().to_lowercase().as_str(), "y" | "yes") {
+                let _ = context::prompts::regen();
+                eprintln!("Prompts regenerated.");
+                regenerated = true;
+            }
         }
-        input.clear();
-        eprint!("Regenerate themes? [y/N] ");
-        let _ = std::io::Write::flush(&mut std::io::stderr());
-        std::io::stdin().read_line(&mut input)?;
-        if matches!(input.trim().to_lowercase().as_str(), "y" | "yes") {
+
+        if auto_themes {
             let _ = context::themes::regen();
-            eprintln!("Themes regenerated.");
+            eprintln!("Themes regenerated (first launch).");
+            regenerated = true;
+        } else {
+            let mut input = String::new();
+            eprint!("Regenerate themes? [y/N] ");
+            let _ = std::io::Write::flush(&mut std::io::stderr());
+            std::io::stdin().read_line(&mut input)?;
+            if matches!(input.trim().to_lowercase().as_str(), "y" | "yes") {
+                let _ = context::themes::regen();
+                eprintln!("Themes regenerated.");
+                regenerated = true;
+            }
         }
-        // Reload context to pick up freshly-regenerated prompts/themes
-        context = context::load(cli.resolve_no_context_files(&cfg));
+
+        if regenerated {
+            // Reload context to pick up freshly-regenerated prompts/themes
+            context = context::load(cli.resolve_no_context_files(&cfg));
+        }
     }
 
     // ARCHITECTURE.md prompt: defer to here so all heavy setup completes first.
