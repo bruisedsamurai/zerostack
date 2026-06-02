@@ -34,6 +34,7 @@ pub struct Renderer {
     pub selection_active: bool,
     pub selection_start: Option<usize>,
     pub selection_end: Option<usize>,
+    prev_input_height: usize,
 }
 
 impl Renderer {
@@ -54,6 +55,7 @@ impl Renderer {
             selection_active: false,
             selection_start: None,
             selection_end: None,
+            prev_input_height: 0,
         })
     }
 
@@ -620,6 +622,21 @@ impl Renderer {
         } else {
             line_count
         };
+
+        if visible_line_count < self.prev_input_height {
+            let old_start = rows.saturating_sub(2) - self.prev_input_height as u16 + 1;
+            let new_start = rows.saturating_sub(2) - visible_line_count as u16 + 1;
+            for row in old_start..new_start {
+                stdout.execute(MoveTo(0, row))?;
+                if let Some(bg) = self.input_bg {
+                    write!(stdout, "{}", SetBackgroundColor(self.color(bg)))?;
+                }
+                write!(stdout, "{}", Clear(ClearType::UntilNewLine))?;
+                write!(stdout, "{}", ResetColor)?;
+            }
+        }
+        self.prev_input_height = visible_line_count;
+
         for (i, line) in lines
             .iter()
             .enumerate()
