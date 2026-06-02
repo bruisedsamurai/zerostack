@@ -60,6 +60,8 @@ where
 
         let mut stream = agent.stream_chat(prompt, history).await;
 
+        let mut last_tool_name: Option<String> = None;
+
         loop {
             let mut retrying = false;
 
@@ -82,6 +84,7 @@ where
                     Ok(MultiTurnStreamItem::StreamAssistantItem(
                         StreamedAssistantContent::ToolCall { tool_call, .. },
                     )) => {
+                        last_tool_name = Some(tool_call.function.name.clone());
                         let _ = event_tx
                             .send(AgentEvent::ToolCall {
                                 name: CompactString::from(tool_call.function.name),
@@ -104,6 +107,7 @@ where
                         }
                         let _ = event_tx
                             .send(AgentEvent::ToolResult {
+                                name: CompactString::new(last_tool_name.take().unwrap_or_default()),
                                 output: CompactString::from(output),
                             })
                             .await;

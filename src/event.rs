@@ -9,6 +9,7 @@ pub enum AgentEvent {
         args: serde_json::Value,
     },
     ToolResult {
+        name: CompactString,
         output: CompactString,
     },
     SubagentToolCall {

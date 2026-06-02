@@ -6,7 +6,7 @@ mod grep;
 mod list_dir;
 mod normalize;
 pub(crate) mod read;
-mod todo;
+pub(crate) mod todo;
 mod write;
 
 pub(crate) use normalize::{levenshtein_similarity, normalize_whitespace};

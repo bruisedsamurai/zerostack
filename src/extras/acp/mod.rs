@@ -344,7 +344,7 @@ async fn run_prompt(
                     tracing::warn!("ACP failed to send subagent tool call notification: {}", e);
                 }
             }
-            AgentEvent::ToolResult { output } => {
+            AgentEvent::ToolResult { output, .. } => {
                 let id = tool_call_id
                     .take()
                     .unwrap_or_else(|| ToolCallId::new(uuid::Uuid::new_v4().to_string()));
