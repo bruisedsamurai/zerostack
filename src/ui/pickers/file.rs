@@ -287,12 +287,16 @@ mod tests {
     use super::*;
     use std::fs;
     use std::path::Path;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    static TEMP_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
     fn with_temp_dir<F>(f: F)
     where
         F: FnOnce(&Path),
     {
-        let dir = std::env::temp_dir().join(format!("zerostack_test_{}", std::process::id()));
+        let n = TEMP_COUNTER.fetch_add(1, Ordering::SeqCst);
+        let dir = std::env::temp_dir().join(format!("zerostack_test_{}_{}", std::process::id(), n));
         fs::create_dir_all(&dir).unwrap();
         let canonical = dir.canonicalize().unwrap();
         f(&canonical);
@@ -332,6 +336,83 @@ mod tests {
             assert!(names.contains(&"a"));
             assert!(names.contains(&"a/b"));
             assert!(names.contains(&"a/b/deep.txt"));
+        });
+    }
+
+    #[test]
+    fn test_walk_files_skips_dotfiles() {
+        with_temp_dir(|root| {
+            fs::write(root.join(".hidden"), b"secret").unwrap();
+            fs::write(root.join("visible.txt"), b"hello").unwrap();
+
+            let files = walk_files(&root.to_string_lossy());
+            let names: Vec<&str> = files.iter().map(|p| p.to_str().unwrap()).collect();
+
+            assert!(!names.contains(&".hidden"));
+            assert!(names.contains(&"visible.txt"));
+        });
+    }
+
+    #[test]
+    fn test_walk_files_skips_files_in_dot_dirs() {
+        with_temp_dir(|root| {
+            fs::create_dir_all(root.join(".secret").join("nested")).unwrap();
+            fs::write(
+                root.join(".secret").join("nested").join("file.txt"),
+                b"hidden",
+            )
+            .unwrap();
+            fs::write(root.join(".secret").join("secret_file.txt"), b"hidden").unwrap();
+            fs::write(root.join("public.txt"), b"visible").unwrap();
+
+            let files = walk_files(&root.to_string_lossy());
+            let names: Vec<&str> = files.iter().map(|p| p.to_str().unwrap()).collect();
+
+            assert!(!names.contains(&".secret"));
+            assert!(!names.contains(&".secret/nested"));
+            assert!(!names.contains(&".secret/nested/file.txt"));
+            assert!(!names.contains(&".secret/secret_file.txt"));
+            assert!(names.contains(&"public.txt"));
+        });
+    }
+
+    #[test]
+    fn test_walk_files_root_is_sorted_and_stripped() {
+        with_temp_dir(|root| {
+            fs::write(root.join("z.txt"), b"z").unwrap();
+            fs::write(root.join("c.txt"), b"c").unwrap();
+            fs::write(root.join("a.txt"), b"a").unwrap();
+
+            let files = walk_files(&root.to_string_lossy());
+            let names: Vec<&str> = files.iter().map(|p| p.to_str().unwrap()).collect();
+
+            let root_idx = names.iter().position(|n| n.is_empty());
+            assert!(
+                root_idx.is_some(),
+                "root entry (empty string) should be present"
+            );
+
+            let file_indices: Vec<usize> = names
+                .iter()
+                .enumerate()
+                .filter(|(_, n)| n.ends_with(".txt"))
+                .map(|(i, _)| i)
+                .collect();
+            assert!(
+                file_indices.windows(2).all(|w| w[0] < w[1]),
+                "files should be sorted"
+            );
+        });
+    }
+
+    #[test]
+    fn test_walk_files_empty_directory() {
+        with_temp_dir(|root| {
+            let files = walk_files(&root.to_string_lossy());
+            let names: Vec<&str> = files.iter().map(|p| p.to_str().unwrap()).collect();
+
+            assert_eq!(names.len(), 1, "only root entry expected in empty dir");
+            assert!(names.contains(&""), "root entry should be present");
         });
     }
 }
