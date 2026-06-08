@@ -42,12 +42,11 @@ pub struct Config {
     pub max_agent_turns: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_text_file_size: Option<u64>,
-    // Tool output limits. `None` for `max_bash_output_lines` and
-    // `max_list_dir_entries` means "no truncation" — matches the historical
-    // behaviour. The other three have non-None defaults so existing users
-    // see no change unless they set these explicitly. Local-LLM users can
-    // tighten all five via a separate `local-limits-config.toml`; see the
-    // loader.
+    // Tool output limits. `None` for `max_bash_output_lines` means "no
+    // truncation" — matches the historical behaviour. The other four have
+    // non-None defaults so existing users see no change unless they set
+    // these explicitly. Local-LLM users can tighten all five via a separate
+    // `local-limits-config.toml`; see the loader.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_read_lines: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -176,17 +175,15 @@ impl Config {
     }
 
     pub fn resolve_max_grep_results(&self) -> u64 {
-        self.max_grep_results.unwrap_or(200)
+        self.max_grep_results.unwrap_or(150)
     }
 
     pub fn resolve_max_find_results(&self) -> u64 {
-        self.max_find_results.unwrap_or(200)
+        self.max_find_results.unwrap_or(150)
     }
 
-    /// Returns `None` when no cap is configured — preserves the historical
-    /// "no list_dir truncation" behaviour.
     pub fn resolve_max_list_dir_entries(&self) -> Option<u64> {
-        self.max_list_dir_entries
+        self.max_list_dir_entries.or(Some(150))
     }
 
     pub fn resolve_always_show_welcome(&self) -> bool {

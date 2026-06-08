@@ -14,11 +14,7 @@ pub struct FindFilesTool {
 }
 
 impl FindFilesTool {
-    pub fn new(
-        permission: Option<PermCheck>,
-        ask_tx: Option<AskSender>,
-        max_results: u64,
-    ) -> Self {
+    pub fn new(permission: Option<PermCheck>, ask_tx: Option<AskSender>, max_results: u64) -> Self {
         FindFilesTool {
             permission,
             ask_tx,

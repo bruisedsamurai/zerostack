@@ -20,7 +20,7 @@ pub enum CheckResult {
 impl CheckResult {
     pub fn allowed_with_coaching(tool: &str, _input: &str, count: usize) -> Self {
         CheckResult::AllowedWithCoaching(format!(
-            "⚡ Coaching: You've called {tool} on the same input {count} times in a row. \
+            "Coaching: You've called {tool} on the same input {count} times in a row. \
              This looks like a loop — try a different approach.",
         ))
     }

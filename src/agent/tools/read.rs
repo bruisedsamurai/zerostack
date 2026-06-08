@@ -42,7 +42,10 @@ impl Tool for ReadTool {
     async fn definition(&self, _prompt: String) -> ToolDefinition {
         let (desc, params) = match edit_system() {
             EditSystem::Similarity => (
-                format!("Read the contents of a file. Supports text files. Defaults to first {} lines. Use offset/limit for large files.", self.max_lines),
+                format!(
+                    "Read the contents of a file. Supports text files. Defaults to first {} lines. Use offset/limit for large files.",
+                    self.max_lines
+                ),
                 serde_json::json!({
                     "type": "object",
                     "properties": {
@@ -54,7 +57,10 @@ impl Tool for ReadTool {
                 }),
             ),
             EditSystem::Hashedit => (
-                format!("Read file contents with CRC-32 tagged lines for tag-based editing. Each line is prefixed with 'N|TAG' where TAG is an 8-char hex CRC-32 of the line content. Use these tags with the edit tool for CAS-guarded edits. Defaults to first {} lines.", self.max_lines),
+                format!(
+                    "Read file contents with CRC-32 tagged lines for tag-based editing. Each line is prefixed with 'N|TAG' where TAG is an 8-char hex CRC-32 of the line content. Use these tags with the edit tool for CAS-guarded edits. Defaults to first {} lines.",
+                    self.max_lines
+                ),
                 serde_json::json!({
                     "type": "object",
                     "properties": {
