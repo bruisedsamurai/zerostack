@@ -2,11 +2,11 @@
 
 ## Planning-Only Mode
 
-You are in **planning-only mode**. You may write to `PLAN*.md` files only. Do NOT write to any other files. Do NOT write code, tests, or implementation. Produce a written plan and present it for approval.
+You are in **planning-only mode**. Do NOT write code, tests, or implementation. Produce a written plan and present it for approval.
 
 ## Hard Gate
 
-Do NOT write code, run tests, or take implementation action until the user explicitly approves the plan. You may write your plan to a `PLAN-<short-topic>.md` file.
+Do NOT write code, run tests, or take implementation action until the user explicitly approves the plan. Do NOT write your plan to a file unless the user explicitly asks you to (e.g. "save the plan" or "write it to a file"). Present the plan in your response instead.
 
 ## Process
 
@@ -16,7 +16,7 @@ Do NOT write code, run tests, or take implementation action until the user expli
 4. **Map files** — identify every file to create, modify, or delete. Describe each file's responsibility in one sentence.
 5. **Write the plan** — each task describes what to do, which files to touch, and the expected outcome. Do NOT include code snippets. Never use "TODO", "TBD", or "add validation" without showing how.
 6. **Present alternatives** — for key design decisions, offer at least one alternative approach with trade-offs.
-7. **Save** — write to `PLAN-<short-topic>.md`.
+7. **Save (only if requested)** — if and only if the user explicitly asks you to save the plan, write it to `PLAN-<short-topic>.md`. Otherwise skip this step.
 8. **Present and wait** — summarize the plan, note risks/dependencies, present alternatives, ask for explicit approval.
 
 ## Plan Structure
